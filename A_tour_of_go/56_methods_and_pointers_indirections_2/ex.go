@@ -1,48 +1,52 @@
 /*
-Methods and pointer indirection
+Methods and pointer indirection (2)
 
-Comparing the previous two programs, you might notice that functions with a pointer argument must take a pointer:
+The equivalent thing happens in the reverse direction.
 
-var v Vertex
-ScaleFunc(v, 5)  // Compile error!
-ScaleFunc(&v, 5) // OK
-
-while methods with pointer receivers take either a value or a pointer as the receiver when they are called:
+Functions that take a value argument must take a value of that specific type:
 
 var v Vertex
-v.Scale(5)  // OK
+fmt.Println(AbsFunc(v))  // OK
+fmt.Println(AbsFunc(&v)) // Compile error!
+
+while methods with value receivers take either a value or a pointer as the receiver when they are called:
+
+var v Vertex
+fmt.Println(v.Abs()) // OK
 p := &v
-p.Scale(10) // OK
+fmt.Println(p.Abs()) // OK
 
-For the statement v.Scale(5), even though v is a value and not a pointer, the method with the pointer receiver is called automatically. That is, as a convenience, Go interprets the statement v.Scale(5) as (&v).Scale(5) since the Scale method has a pointer receiver.
+In this case, the method call p.Abs() is interpreted as (*p).Abs().
 */
 
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 type Vertex struct {
 		X, Y float64
 }
 
-func (v *Vertex) Scale(f float64) {
-		v.X *= f
-		v.Y *= f
+func (v Vertex) Abs() float64 {
+		return math.Sqrt(v.X * v.X + v.Y * v.Y)
 }
 
-func ScaleFunc(v *Vertex, f float64) {
-		v.X *= f
-		v.Y *= f
+func AbsFunc(v Vertex) float64 {
+		return math.Sqrt(v.X * v.X + v.Y * v.Y)
 }
 
 func main() {
+
 		v := Vertex{3, 4}
-		v.Scale(2)
-		ScaleFunc(&v, 10)
+		fmt.Println(v.Abs())
+		fmt.Println(AbsFunc(v))
 
-		p := &Vertex{3, 4}
-		p.Scale(3)
-		ScaleFunc(p, 8)
-
-		fmt.Println(v, p)
+		p := &Vertex{4, 3}
+		fmt.Println(p.Abs())
+		fmt.Println(AbsFunc(*p))
 }
+
+
